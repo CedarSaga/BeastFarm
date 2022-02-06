@@ -1,4 +1,4 @@
-from boids import *
+from beasts import *
 
 
 flock = [Beast() for _ in range(20)]
