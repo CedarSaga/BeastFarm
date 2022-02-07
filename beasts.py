@@ -75,5 +75,5 @@ class Beast:
         for beast in flock:
             distance = dist(self.position, beast.position)
             radSum = self.radius + beast.radius
-            if distance < radSum:
+            #if distance < radSum:
                 #Bounce physics
