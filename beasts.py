@@ -18,14 +18,14 @@ class Beast:
         self.position = Vector((np.random.randint(0, high=WIN_WID)), (np.random.randint(0, high=WIN_HEI)))
 
         #setting the velocity vector to two numbers
-        speedMult = self.radius * 100 #This does not work
+        speedMult = self.radius
         vec1 = np.random.randint(1,high=15) / speedMult
         vec2 = np.random.randint(1,high=15) / speedMult
         vec = (vec1, vec2) 
         self.velocity = Vector(*vec)
 
         #setting acceleration to two numbers, I believe something ~.0005--
-        vec = (np.random.rand(2) - .5)/2
+        vec = (np.random.rand(2) - .5) / (2 * speedMult)
         self.acc = Vector(*vec)
         
         #generating three numbers to assign to color values
