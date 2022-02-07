@@ -1,31 +1,35 @@
 #beasts
+from tempfile import TemporaryDirectory
 from p5 import *
 import numpy as np
 
-WIN_WID = 1000
-WIN_HEI = 1000
+WIN_WID = 500
+WIN_HEI = 500
 
 class Beast:
     def __init__(self):
 
         #generating random size variables 5 to 10, setting up a size combination for bouncing later maybe?
-        self.radius = np.random.randint(5,high=50)
+        self.radius = np.random.randint(5,high=15)
         #self.width = np.random.randint(5,high=50)
         #self.height = np.random.randint(5,high=50)
         
+        self.perception = self.radius + 50
 
         #position is a set of random numbers within the window range for x and y
         self.position = Vector((np.random.randint(0, high=WIN_WID)), (np.random.randint(0, high=WIN_HEI)))
 
+        self.speedMult = self.radius / 2
         #setting the velocity vector to two numbers
-        speedMult = self.radius
-        vec1 = np.random.randint(1,high=15) / speedMult
-        vec2 = np.random.randint(1,high=15) / speedMult
+        vec1 = np.random.randint(1,high=15) / self.speedMult
+        vec2 = np.random.randint(1,high=15) / self.speedMult
         vec = (vec1, vec2) 
         self.velocity = Vector(*vec)
 
-        #setting acceleration to two numbers, I believe something ~.0005--
-        vec = (np.random.rand(2) - .5) / (2 * speedMult)
+        #setting acceleration to two numbers
+        vec1 = np.random.rand() / self.speedMult
+        vec2 = np.random.rand() / self.speedMult
+        vec = (vec1, vec2) 
         self.acc = Vector(*vec)
         
         #generating three numbers to assign to color values
@@ -44,7 +48,7 @@ class Beast:
         #rect(self.position.x, self.position.y, self.width, self.height)
 
     def move(self):
-        #moves position, adds acceleration to vary speed
+        #moves position, adds accelercation to vary speed
         self.position += self.velocity
         self.velocity += self.acc
 
@@ -52,7 +56,7 @@ class Beast:
         if np.linalg.norm(self.velocity) > 3:
             self.velocity = self.velocity / np.linalg.norm(self.velocity) * 3
         #resets acceleration
-        self.acceleration = Vector(*np.zeros(2))
+        #self.acceleration = Vector(*np.zeros(2))
 
     def edges(self):
         #wraps around
@@ -66,4 +70,10 @@ class Beast:
         elif self.position.y < 0:
             self.position.y = WIN_HEI
 
-
+    #This does not work
+    def bounce(self, flock):
+        for beast in flock:
+            distance = dist(self.position, beast.position)
+            radSum = self.radius + beast.radius
+            if distance < radSum:
+                #Bounce physics
