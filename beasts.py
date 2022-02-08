@@ -10,32 +10,37 @@ class Beast:
     def __init__(self):
 
         #generating random size variables 5 to 10, setting up a size combination for bouncing later maybe?
-        self.radius = np.random.randint(5,high=15)
+        self.radius = random_uniform(low=5,high=15)
         #self.width = np.random.randint(5,high=50)
         #self.height = np.random.randint(5,high=50)
         
         self.perception = self.radius + 50
 
         #position is a set of random numbers within the window range for x and y
-        self.position = Vector((np.random.randint(0, high=WIN_WID)), (np.random.randint(0, high=WIN_HEI)))
+        self.position = Vector((random_uniform(low=0, high=WIN_WID)), (random_uniform(low=0, high=WIN_WID)))
 
         self.speedMult = self.radius / 2
+
         #setting the velocity vector to two numbers
-        vec1 = np.random.randint(1,high=15) / self.speedMult
-        vec2 = np.random.randint(1,high=15) / self.speedMult
+        vec1 = random_uniform(low=1,high=15)
+        vec2 = random_uniform(low=1,high=15)
         vec = (vec1, vec2) 
         self.velocity = Vector(*vec)
+        Vector.normalize(self.velocity)
+        self.velocity /= self.speedMult
 
         #setting acceleration to two numbers
-        vec1 = np.random.rand() / self.speedMult
-        vec2 = np.random.rand() / self.speedMult
+        vec1 = random_uniform(low=(-.001), high=.001)
+        vec2 = random_uniform(low=(-.001), high=.001)
         vec = (vec1, vec2) 
         self.acc = Vector(*vec)
+        Vector.normalize(self.acc)
+        self.acc *= .5
         
         #generating three numbers to assign to color values
-        col1 = np.random.randint(0, high=255)
-        col2 = np.random.randint(0, high=255)
-        col3 = np.random.randint(0, high=255)
+        col1 = random_uniform(low=0, high=255)
+        col2 = random_uniform(low=0, high=255)
+        col3 = random_uniform(low=0, high=255)
         self.color = Color(col1, col2, col3)
 
 
@@ -43,20 +48,19 @@ class Beast:
         #using some p5 library graphics stuff to draw the bodies
         stroke(0,0,0)
         fill(self.color)
-        circle(self.position.x, self.position.y,self.radius)
+        circle(self.position.x, self.position.y, self.radius)
         #rect_mode("CENTER")
         #rect(self.position.x, self.position.y, self.width, self.height)
 
     def move(self):
         #moves position, adds accelercation to vary speed
-        self.position += self.velocity
         self.velocity += self.acc
+        
 
         #limits acceleration to stop endless speeding up
-        if np.linalg.norm(self.velocity) > 3:
-            self.velocity = self.velocity / np.linalg.norm(self.velocity) * 3
-        #resets acceleration
-        #self.acceleration = Vector(*np.zeros(2))
+        self.velocity.limit(1)
+
+        self.position += self.velocity
 
     def edges(self):
         #wraps around
@@ -73,7 +77,8 @@ class Beast:
     #This does not work
     def bounce(self, flock):
         for beast in flock:
-            distance = dist(self.position, beast.position)
+            distance = Vector.distance(self.position, beast.position)
             radSum = self.radius + beast.radius
             #if distance < radSum:
-                #Bounce physics
+            radSum = 0
+            distance = 0

@@ -15,7 +15,7 @@ def draw():
         beast.move()
         beast.display()
         beast.edges()
-        #beast.bounce(flock) Non-Functional
+        beast.bounce(flock)
 
 if __name__ == '__main__':
     run()
