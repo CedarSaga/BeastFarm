@@ -1,13 +1,10 @@
 #beasts
-from tempfile import TemporaryDirectory
 from p5 import *
-import numpy as np
-import random
 
 WIN_WID = 750
 WIN_HEI = 500
 
-#TODO: fix turning jitters
+#TODO: add main brain to determine independent direction
 
 class Beast:
     def __init__(self):
@@ -15,7 +12,7 @@ class Beast:
         self.color = Color(self.randNum(0,255),self.randNum(0,255),self.randNum(0,255))
 
         #generating random size variables 5 to 10
-        self.radius = self.randNum(4,6)
+        self.mass = self.randNum(4,6)
         
         #position is a set of random numbers within the window range for x and y
         self.position = Vector(self.randNum(0, WIN_WID), self.randNum(0, WIN_HEI))
@@ -23,16 +20,17 @@ class Beast:
         #setting the velocity vector to two numbers
         self.velocity = Vector(self.randNum(-10,10), self.randNum(-10,10))
         Vector.normalize(self.velocity)
-        self.velocity *= 5  
+        self.velocity *= 10 
 
         #setting acceleration
         self.acc = Vector(0,0)
 
         
-        self.perceptionRadius = self.randNum(75,90)
+        self.perceptionRadius = 200 #self.randNum(75,90)
+        self.personalSpace = 50
 
         self.maxSpeed = self.randNum(5,20)
-        self.maxForce = 1
+        self.maxForce = .5
 
 
     def display(self):
@@ -44,9 +42,9 @@ class Beast:
         translate(self.position.x, self.position.y)
         rotate(theta)
         begin_shape()
-        vertex(0, -self.radius * 2)
-        vertex(-self.radius, self.radius * 2)
-        vertex(self.radius, self.radius * 2)
+        vertex(0, -self.mass * 2)
+        vertex(-self.mass, self.mass * 2)
+        vertex(self.mass, self.mass * 2)
         end_shape(CLOSE)
         pop_matrix()
         #circle(self.position, self.perceptionRadius) #perception circle for testing
@@ -55,12 +53,10 @@ class Beast:
 
     def move(self, flock):
         self.behave(flock)
-
         self.velocity += self.acc
-
-        #limits acceleration to stop endless speeding up
+    
         self.velocity.limit(self.maxSpeed)
-
+        
         self.position += self.velocity
         self.acc *= 0
 
@@ -84,10 +80,10 @@ class Beast:
         total = 0
 
         for beast in flock:
-            #Isnt itself and other beast is in the view range
-            if (beast != self) & (dist(beast.position, self.position) < self.perceptionRadius):
-                diff = Vector.__sub__(self.position, beast.position)
-                diff /= pow(dist(beast.position, self.position),2)
+            d = dist(beast.position, self.position) #Isnt itself and other beast is in the view range
+            if (beast != self) & (d < self.personalSpace):
+                diff = self.position - beast.position
+                diff /= pow(d,2)
                 separate += diff
                 total += 1
         if total > 0:
@@ -101,23 +97,27 @@ class Beast:
     def align(self, flock):
         alignment = Vector(0,0)
         total = 0
+        
 
         for beast in flock:
-            if (beast != self)&(dist(beast.position, self.position) < self.perceptionRadius):
+            d = dist(beast.position, self.position)
+            if (beast != self) & (d < self.perceptionRadius):
                 alignment += beast.velocity
                 total += 1
         if total > 0:
             alignment /= total
             alignment -= self.velocity
-            alignment.magnitude = self.maxSpeed
+            alignment.magnitude = (self.maxSpeed / 2)
             alignment.limit(self.maxForce)
         return alignment
 
     def cohesion(self, flock):
         cohesion = Vector(0,0)
         total = 0
+
         for beast in flock:
-            if (beast != self)&(dist(beast.position, self.position) < self.perceptionRadius):
+            d = dist(beast.position, self.position)
+            if (beast != self) & (d < self.perceptionRadius):
                 cohesion += beast.position
                 total += 1
         if total > 0:
@@ -129,7 +129,7 @@ class Beast:
 
     def applyForce(self, force):
         #Mass would go here
-        self.acc += force
+        self.acc += (force * self.mass)
 
 
     def edges(self):
@@ -147,20 +147,3 @@ class Beast:
 
     def randNum(self, low, high):
         return random_uniform(low=low, high=high)
-
-"""
-LEGACY
-
-#from init
-    #legacy for rectangles
-        #self.width = np.random.randint(5,high=50)
-        #self.height = np.random.randint(5,high=50)
-
-#from display
-    #legacy rectangles
-        #rect_mode("CENTER")
-        #rect(self.position.x, self.position.y, self.width, self.height)
-
-
-        
-"""
