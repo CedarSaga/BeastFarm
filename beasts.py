@@ -1,4 +1,5 @@
 #beasts
+from turtle import speed
 from p5 import *
 
 WIN_WID = 750
@@ -18,18 +19,20 @@ class Beast:
         self.position = Vector(self.randNum(0, WIN_WID), self.randNum(0, WIN_HEI))
 
         #setting the velocity vector to two numbers
-        self.velocity = Vector(self.randNum(-10,10), self.randNum(-10,10))
-        Vector.normalize(self.velocity)
-        self.velocity *= 10 
+        self.velocity = Vector(self.randNum(-1000,1000), self.randNum(-1000,1000))
+        #Vector.normalize(self.velocity)
+        #self.velocity *= 100 
+        self.speed = sqrt(self.velocity.x*self.velocity.x + self.velocity.y*self.velocity.y)
 
         #setting acceleration
         self.acc = Vector(0,0)
 
         
         self.perceptionRadius = 200 #self.randNum(75,90)
-        self.personalSpace = 50
+        self.personalSpace = self.mass * 10
 
-        self.maxSpeed = self.randNum(5,20)
+        self.maxSpeed = self.randNum(20,50)
+        self.minSpeed = 20
         self.maxForce = .5
 
 
@@ -48,14 +51,22 @@ class Beast:
         end_shape(CLOSE)
         pop_matrix()
         #circle(self.position, self.perceptionRadius) #perception circle for testing
-        
-
 
     def move(self, flock):
         self.behave(flock)
         self.velocity += self.acc
     
         self.velocity.limit(self.maxSpeed)
+        
+        
+        if (self.speed < self.minSpeed):
+            self.velocity.x /= self.speed
+            self.velocity.x *= self.minSpeed
+            self.velocity.y /= self.speed
+            self.velocity.y *= self.minSpeed
+
+        
+        
         
         self.position += self.velocity
         self.acc *= 0
@@ -67,8 +78,8 @@ class Beast:
         coh = self.cohesion(flock)
 
         sep *= 1
-        ali *= 1
-        coh *= 1
+        ali *= .5
+        coh *= .75
 
         self.applyForce(sep)
         self.applyForce(ali)
@@ -127,8 +138,10 @@ class Beast:
             cohesion.limit(self.maxForce)
         return cohesion
 
+    #def eat(self, food):
+
     def applyForce(self, force):
-        #Mass would go here
+        #Mass goes here
         self.acc += (force * self.mass)
 
 
