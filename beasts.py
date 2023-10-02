@@ -10,31 +10,33 @@ WIN_HEI = 500
 class Beast:
     def __init__(self):
         #generating three numbers to assign to color values
-        self.color = Color(self.randNum(0,255),self.randNum(0,255),self.randNum(0,255))
+        self.color = Color(randNum(0,255), randNum(0,255),randNum(0,255))
+
+        #generate political sway
+        self.sway = self.color.r + self.color.b + self.color.g
 
         #generating random size variables 5 to 10
-        self.mass = self.randNum(4,6)
+        self.mass = randNum(3,7)
         
         #position is a set of random numbers within the window range for x and y
-        self.position = Vector(self.randNum(0, WIN_WID), self.randNum(0, WIN_HEI))
+        self.position = Vector(randNum(0, WIN_WID), randNum(0, WIN_HEI))
 
         #setting the velocity vector to two numbers
-        self.velocity = Vector(self.randNum(-1000,1000), self.randNum(-1000,1000))
-        #Vector.normalize(self.velocity)
-        #self.velocity *= 100 
+        self.velocity = Vector(randNum(-100,100), randNum(-100,100))
+        
         self.speed = sqrt(self.velocity.x*self.velocity.x + self.velocity.y*self.velocity.y)
 
         #setting acceleration
-        self.acc = Vector(0,0)
+        self.acc = (self.velocity / 10) #Vector(0,0)
 
         
-        self.perceptionRadius = 200 #self.randNum(75,90)
+        self.perceptionRadius = self.mass * 100 #randNum(75,90)
         self.personalSpace = self.mass * 10
 
-        self.maxSpeed = self.randNum(20,50)
+  
+        self.maxSpeed = 100
         self.minSpeed = 20
-        self.maxForce = .5
-
+        self.maxForce = 1
 
     def display(self):
         #using some p5 library graphics stuff to draw the bodies
@@ -50,7 +52,10 @@ class Beast:
         vertex(self.mass, self.mass * 2)
         end_shape(CLOSE)
         pop_matrix()
-        #circle(self.position, self.perceptionRadius) #perception circle for testing
+
+        #perception circle for testing
+        #circle(self.position, self.perceptionRadius) 
+    
 
     def move(self, flock):
         self.behave(flock)
@@ -58,16 +63,12 @@ class Beast:
     
         self.velocity.limit(self.maxSpeed)
         
-        
         if (self.speed < self.minSpeed):
             self.velocity.x /= self.speed
             self.velocity.x *= self.minSpeed
             self.velocity.y /= self.speed
             self.velocity.y *= self.minSpeed
 
-        
-        
-        
         self.position += self.velocity
         self.acc *= 0
 
@@ -79,7 +80,7 @@ class Beast:
 
         sep *= 1
         ali *= .5
-        coh *= .75
+        coh *= .75 
 
         self.applyForce(sep)
         self.applyForce(ali)
@@ -91,8 +92,8 @@ class Beast:
         total = 0
 
         for beast in flock:
-            d = dist(beast.position, self.position) #Isnt itself and other beast is in the view range
-            if (beast != self) & (d < self.personalSpace):
+            d = dist(beast.position, self.position) 
+            if (beast != self) & (d < self.personalSpace): #Isnt itself and other beast is in the its space
                 diff = self.position - beast.position
                 diff /= pow(d,2)
                 separate += diff
@@ -104,12 +105,10 @@ class Beast:
             separate.limit(self.maxForce)
         return separate
             
-
     def align(self, flock):
         alignment = Vector(0,0)
         total = 0
         
-
         for beast in flock:
             d = dist(beast.position, self.position)
             if (beast != self) & (d < self.perceptionRadius):
@@ -142,21 +141,20 @@ class Beast:
 
     def applyForce(self, force):
         #Mass goes here
-        self.acc += (force * self.mass)
+        self.acc += (force / self.mass)
 
 
-    def edges(self):
-        #wraps around
-        if self.position.x > WIN_WID:
-            self.position.x = 0
-        elif self.position.x < 0:
-            self.position.x = WIN_WID
+def edges(self):
+    #wraps around
+    if self.position.x > WIN_WID:
+        self.position.x = 0
+    elif self.position.x < 0:
+        self.position.x = WIN_WID
         
-        if self.position.y > WIN_HEI:
-            self.position.y = 0
-        elif self.position.y < 0:
-            self.position.y = WIN_HEI
+    if self.position.y > WIN_HEI:
+        self.position.y = 0
+    elif self.position.y < 0:
+        self.position.y = WIN_HEI
 
-
-    def randNum(self, low, high):
-        return random_uniform(low=low, high=high)
+def randNum(low, high):
+    return random_uniform(low=low, high=high)

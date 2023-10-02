@@ -1,6 +1,6 @@
 from beasts import *
 
-FLK_SIZ = 25
+FLK_SIZ = 10
 flock = [Beast() for _ in range(FLK_SIZ)]
 
 def setup():
@@ -9,13 +9,13 @@ def setup():
     
 def draw():
     global flock, beast
-    background(30, 30, 47)
+    background(70, 0, 150)
     
     
     for beast in flock:
         beast.display()
         beast.move(flock)
-        beast.edges()
+        edges(beast)
     
 
 if __name__ == '__main__':
